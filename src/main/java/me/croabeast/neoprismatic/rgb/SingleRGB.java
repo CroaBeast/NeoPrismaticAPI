@@ -7,7 +7,7 @@ public final class SingleRGB extends RGBParser {
 
     public static final String[] PATTERNS = {
             "[{]#([a-f\\d]{6})[}]", "<#([a-f\\d]{6})>", "%#([a-f\\d]{6})%",
-            "[[]#([a-f\\d]{6})[]]", "&?#([a-f\\d]{6})", "&x([a-f\\d]{6})"
+            "\\[#([a-f\\d]{6})]", "&?#([a-f\\d]{6})", "&x([a-f\\d]{6})"
     };
 
     public SingleRGB() {
