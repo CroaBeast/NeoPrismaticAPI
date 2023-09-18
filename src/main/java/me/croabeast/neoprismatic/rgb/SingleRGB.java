@@ -11,7 +11,7 @@ public final class SingleRGB extends RGBParser {
     };
 
     public SingleRGB() {
-        setParserMap(new RGBMapBuilder().putAll((p, s, b) -> {
+        parserMap.putAll((p, s, b) -> {
             var m = p.matcher(s);
 
             while (m.find()) {
@@ -20,13 +20,13 @@ public final class SingleRGB extends RGBParser {
             }
 
             return s;
-        }, PATTERNS));
+        }, PATTERNS);
 
-        setStripMap(new RGBMapBuilder().putAll((p, s, b) -> {
+        stripMap.putAll((p, s, b) -> {
             var m = p.matcher(s);
 
             while (m.find()) s = s.replace(m.group(), "");
             return s;
-        }, PATTERNS));
+        }, PATTERNS);
     }
 }

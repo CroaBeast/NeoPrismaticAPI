@@ -1,17 +1,38 @@
 package me.croabeast.neoprismatic.rgb;
 
-import lombok.AccessLevel;
-import lombok.Setter;
 import lombok.var;
 import me.croabeast.neoprismatic.util.MapBuilder;
 import org.apache.commons.lang.StringUtils;
 
+import java.awt.*;
 import java.util.regex.Pattern;
 
 public abstract class RGBParser {
 
-    @Setter(AccessLevel.PROTECTED)
-    private MapBuilder<Pattern, RGBAction> parserMap = null, stripMap = null;
+    protected final RGBMapBuilder parserMap = new RGBMapBuilder(), stripMap = new RGBMapBuilder();
+
+    protected static Color getColor(String line) {
+        return new Color(Integer.parseInt(line, 16));
+    }
+
+    protected static String[] splitString(String text, int parts) {
+        if (parts < 2) return new String[] {text};
+
+        String[] list = new String[parts];
+        double length = text.length();
+
+        int start = 0;
+
+        for (int i = 0; i < parts; i++) {
+            int chars = (int) Math.ceil((length - start) / (parts - i));
+            int end = start + chars;
+
+            list[i] = text.substring(start, end);
+            start = end;
+        }
+
+        return list;
+    }
 
     public String parse(String string, boolean isLegacy) {
         if (StringUtils.isEmpty(string)) return string;
@@ -49,9 +70,8 @@ public abstract class RGBParser {
             return this;
         }
 
-        public RGBMapBuilder putAll(RGBAction a, String... strings) {
+        public void putAll(RGBAction a, String... strings) {
             for (String s : strings) put(s, a);
-            return this;
         }
     }
 }
