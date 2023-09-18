@@ -4,20 +4,26 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class MapBuilder<A, B> {
 
-    private final Map<A, B> map = new HashMap<>();
-    private final List<BuilderEntry<A, B>> entries = new ArrayList<>();
+    private final List<Entry<? extends A, ? extends B>> entries = new LinkedList<>();
+
+    public MapBuilder() {}
+
+    public MapBuilder(Map<? extends A, ? extends B> map) {
+        if (map != null)
+            map.forEach((k, v) -> entries.add(new Entry<>(k, v)));
+    }
+
+    public MapBuilder(Collection<Entry<? extends A,? extends B>> collection) {
+        if (collection != null) entries.addAll(collection);
+    }
 
     public MapBuilder<A, B> put(A key, B value) {
-        map.put(key, value);
-        entries.add(new BuilderEntry<>(key, value));
+        entries.add(new Entry<>(key, value));
         return this;
     }
 
@@ -29,36 +35,29 @@ public class MapBuilder<A, B> {
         return entries.stream().map(e -> e.value).collect(Collectors.toList());
     }
 
-    public List<BuilderEntry<A, B>> entries(){
-        return new ArrayList<>(entries);
+    public List<Entry<A, B>> entries(){
+        return entries.stream().
+                map(e -> {
+                    B v = e.value;
+                    A k = e.key;
+
+                    return new Entry<>(k, v);
+                }).
+                collect(Collectors.toList());
     }
 
     public Map<A, B> map() {
-        return new HashMap<>(map);
+        Map<A, B> map = new LinkedHashMap<>();
+        entries.forEach(e -> map.put(e.key, e.value));
+        return map;
     }
 
     public boolean isEmpty() {
-        return map.isEmpty();
+        return entries.isEmpty();
     }
 
     public String toString() {
-        return map.toString();
-    }
-
-    /**
-     * Represents a pair of key and value of a map builder.
-     */
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    @Getter
-    public static class BuilderEntry<A, B> {
-        /**
-         * The key corresponding of this entry.
-         */
-        private final A key;
-        /**
-         * The value corresponding of this entry.
-         */
-        private final B value;
+        return entries.toString();
     }
 
     /**
@@ -72,5 +71,26 @@ public class MapBuilder<A, B> {
      */
     public static <A, B> boolean isEmpty(MapBuilder<A, B> builder) {
         return builder == null || builder.isEmpty();
+    }
+
+    /**
+     * Represents a pair of key and value of a map builder.
+     */
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    @Getter
+    public static class Entry<A, B> {
+        /**
+         * The key corresponding of this entry.
+         */
+        private final A key;
+        /**
+         * The value corresponding of this entry.
+         */
+        private final B value;
+
+        @Override
+        public String toString() {
+            return key + ":" + value;
+        }
     }
 }

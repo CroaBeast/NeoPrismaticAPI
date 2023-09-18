@@ -13,31 +13,27 @@ public final class MultipleRGB extends RGBParser {
             "<rainbow:(\\d{1,3})>(.+?)</rainbow>", "<r:(\\d{1,3})>(.+?)</r>"
     };
 
-    private static Color getColor(String line) {
-        return new Color(Integer.parseInt(line, 16));
-    }
-
     static String gradientPattern(String prefix) {
         var hex = prefix + "([\\da-f]{6})";
         return "<" + hex + ">(.+?)</" + hex + ">";
     }
 
     static RGBAction gradientParser(String prefix) {
-        return (p, string, b) -> {
-            var match = p.matcher(string);
+        return (pattern, string, isLegacy) -> {
+            var match = pattern.matcher(string);
 
             while (match.find()) {
                 String x = match.group(1), text = match.group(2),
                         z = match.group(3),
                         r = "(?i)<" + prefix + "([\\da-f]{6})>";
 
-                var insideMatch = Pattern.compile(r).matcher(text);
+                var inside = Pattern.compile(r).matcher(text);
                 var array = text.split(r);
 
                 var ids = new ArrayList<String>();
 
                 ids.add(x);
-                while (insideMatch.find()) ids.add(insideMatch.group(1));
+                while (inside.find()) ids.add(inside.group(1));
 
                 ids.add(z);
 
@@ -49,12 +45,12 @@ public final class MultipleRGB extends RGBParser {
                             array[i],
                             getColor(ids.get(i)),
                             getColor(ids.get(i + 1)),
-                            b)
-                    );
+                            isLegacy
+                    ));
                     i++;
                 }
 
-                string = string.replace(match.group(), result + "");
+                string = string.replace(match.group(), result);
             }
 
             return string;
@@ -62,8 +58,8 @@ public final class MultipleRGB extends RGBParser {
     }
 
     static RGBAction gradientStrip(String s) {
-        return (p, string, b) -> {
-            var match = p.matcher(string);
+        return (pattern, string, b) -> {
+            var match = pattern.matcher(string);
 
             while (match.find()) {
                 var array = match.group(2).split("(?i)<" + s + "([\\da-f]{6})>");
@@ -75,7 +71,7 @@ public final class MultipleRGB extends RGBParser {
     }
 
     public MultipleRGB() {
-        setParserMap(new RGBMapBuilder().
+        parserMap.
                 put(gradientPattern("g:"), gradientParser("g:")).
                 put(gradientPattern("#"), gradientParser("#")).
                 putAll((p, s, b) -> {
@@ -89,9 +85,9 @@ public final class MultipleRGB extends RGBParser {
                     }
 
                     return s;
-                }, RAINBOW_PATTERN_STRINGS));
+                }, RAINBOW_PATTERN_STRINGS);
 
-        setStripMap(new RGBMapBuilder().
+        stripMap.
                 put(gradientPattern("g:"), gradientStrip("g:")).
                 put(gradientPattern("#"), gradientStrip("#")).
                 putAll((p, s, b) -> {
@@ -101,6 +97,6 @@ public final class MultipleRGB extends RGBParser {
                         s = s.replace(matcher.group(), matcher.group(2));
 
                     return s;
-                }, RAINBOW_PATTERN_STRINGS));
+                }, RAINBOW_PATTERN_STRINGS);
     }
 }

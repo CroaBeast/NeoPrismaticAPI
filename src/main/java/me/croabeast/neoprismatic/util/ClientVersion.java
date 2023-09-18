@@ -85,13 +85,6 @@ public final class ClientVersion {
         return getVersion() == 0 ? "UNKNOWN_CLIENT:0" : ("CLIENT:" + getVersion());
     }
 
-    /**
-     * Converts an array of numbers to a list.
-     * If there are 2 numbers, it will get all the numbers between those numbers.
-     *
-     * @param numbers numbers' array
-     * @return the number list
-     */
     private static List<Integer> fromInts(Integer... numbers) {
         if (numbers.length != 2)
             return Lists.newArrayList(numbers);

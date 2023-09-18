@@ -3,6 +3,7 @@ package me.croabeast.neoprismatic;
 import com.google.common.collect.Lists;
 import lombok.experimental.UtilityClass;
 import lombok.var;
+import me.croabeast.neoprismatic.rgb.CustomRGB;
 import me.croabeast.neoprismatic.rgb.MultipleRGB;
 import me.croabeast.neoprismatic.rgb.RGBParser;
 import me.croabeast.neoprismatic.rgb.SingleRGB;
@@ -53,21 +54,22 @@ public class NeoPrismaticAPI {
         }
     }).apply(Bukkit.getVersion());
 
-    private final List<RGBParser> PARSER_LIST = Lists.newArrayList(new MultipleRGB(), new SingleRGB());
+    private final List<RGBParser> PARSER_LIST =
+            Lists.newArrayList(new CustomRGB(), new MultipleRGB(), new SingleRGB());
 
     public ChatColor getClosestColor(Color color) {
         Color nearestColor = null;
         double nearestDistance = Integer.MAX_VALUE;
 
         for (var c : COLOR_MAP.keySet()) {
-            var distance = Math.pow(color.getRed() - c.getRed(), 2) +
+            double d = Math.pow(color.getRed() - c.getRed(), 2) +
                     Math.pow(color.getBlue() - c.getBlue(), 2) +
                     Math.pow(color.getGreen() - c.getGreen(), 2);
 
-            if (nearestDistance <= distance) continue;
+            if (nearestDistance <= d) continue;
 
             nearestColor = c;
-            nearestDistance = distance;
+            nearestDistance = d;
         }
 
         return COLOR_MAP.get(nearestColor);
@@ -98,6 +100,7 @@ public class NeoPrismaticAPI {
             var color = new Color(start.getRed() + ((stepR * i) * direction[0]),
                     start.getGreen() + ((stepG * i) * direction[1]),
                     start.getBlue() + ((stepB * i) * direction[2]));
+
             colors[i] = getBukkit(color, isLegacy);
         }
 
@@ -175,7 +178,7 @@ public class NeoPrismaticAPI {
     public String stripBukkit(String string) {
         if (StringUtils.isBlank(string)) return string;
 
-        var p = Pattern.compile("(?i)[&§][a-f\\d]");
+        var p = Pattern.compile("(?i)[&§][a-f\\dx]");
         var m = p.matcher(string);
 
         while (m.find())
@@ -187,7 +190,7 @@ public class NeoPrismaticAPI {
     public String stripSpecial(String string) {
         if (StringUtils.isBlank(string)) return string;
 
-        var p = Pattern.compile("(?i)[&§][k-or]");
+        var p = Pattern.compile("(?i)[&§][k-orx]");
         var m = p.matcher(string);
 
         while (m.find())
