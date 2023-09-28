@@ -4,7 +4,7 @@ import lombok.var;
 import me.croabeast.neoprismatic.util.MapBuilder;
 import org.apache.commons.lang.StringUtils;
 
-import java.awt.*;
+import java.awt.Color;
 import java.util.regex.Pattern;
 
 public abstract class RGBParser {

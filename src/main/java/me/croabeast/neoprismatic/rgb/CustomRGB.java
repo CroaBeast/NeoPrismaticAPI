@@ -1,6 +1,5 @@
 package me.croabeast.neoprismatic.rgb;
 
-import lombok.var;
 import me.croabeast.neoprismatic.NeoPrismaticAPI;
 
 import java.util.regex.Matcher;
@@ -20,7 +19,7 @@ public class CustomRGB extends RGBParser {
 
                 String[] text = splitString(m.group(5), count);
 
-                final var result = new StringBuilder();
+                StringBuilder result = new StringBuilder();
                 int i = 0;
 
                 while (i < count) {
