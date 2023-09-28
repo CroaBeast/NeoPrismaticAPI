@@ -2,15 +2,10 @@ package me.croabeast.neoprismatic.util;
 
 import com.google.common.collect.Lists;
 import com.viaversion.viaversion.api.Via;
-import lombok.Getter;
-import lombok.var;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * The class for checking the client's protocol version.
@@ -44,19 +39,34 @@ public final class ClientVersion {
     /**
      * The major version of the client.
      */
-    @Getter
     private final int version;
 
     /**
      * The protocols list of the major version.
      */
-    @Getter
     private final List<Integer> protocols;
+
+    private static List<Integer> fromInts(Integer... numbers) {
+        if (numbers.length != 2)
+            return Lists.newArrayList(numbers);
+
+        int z = numbers[1], y = numbers[0];
+
+        Integer[] array = new Integer[(z - y) + 1];
+        int index = 0;
+
+        for (int i = y; i <= z; i++) {
+            array[index] = i;
+            index++;
+        }
+
+        return new ArrayList<>(Arrays.asList(array));
+    }
 
     private ClientVersion(int version, int start, int end, List<Integer> ignore) {
         this.version = version;
 
-        var range = fromInts(start, end);
+        List<Integer> range = fromInts(start, end);
 
         if (ignore == null || ignore.isEmpty()) {
             protocols = range;
@@ -82,24 +92,7 @@ public final class ClientVersion {
      */
     @Override
     public String toString() {
-        return getVersion() == 0 ? "UNKNOWN_CLIENT:0" : ("CLIENT:" + getVersion());
-    }
-
-    private static List<Integer> fromInts(Integer... numbers) {
-        if (numbers.length != 2)
-            return Lists.newArrayList(numbers);
-
-        int z = numbers[1], y = numbers[0];
-
-        var array = new Integer[(z - y) + 1];
-        int index = 0;
-
-        for (int i = y; i <= z; i++) {
-            array[index] = i;
-            index++;
-        }
-
-        return new ArrayList<>(Arrays.asList(array));
+        return version == 0 ? "UNKNOWN_CLIENT:0" : ("CLIENT:" + version);
     }
 
     /**
@@ -126,7 +119,7 @@ public final class ClientVersion {
      * @return the major version
      */
     public static int getClientVersion(Player player) {
-        int o = UNKNOWN.getVersion();
+        int o = UNKNOWN.version;
 
         if (!Bukkit.getPluginManager().isPluginEnabled("ViaVersion"))
             return o;
@@ -137,14 +130,12 @@ public final class ClientVersion {
             return o;
         }
 
-        var u = player.getUniqueId();
+        UUID u = player.getUniqueId();
         int i = Via.getAPI().getPlayerVersion(u);
 
-        for (var p : values()) {
+        for (ClientVersion p : values()) {
             if (p == UNKNOWN) continue;
-
-            if (p.getProtocols().contains(i))
-                return p.getVersion();
+            if (p.protocols.contains(i)) return p.version;
         }
 
         return o;

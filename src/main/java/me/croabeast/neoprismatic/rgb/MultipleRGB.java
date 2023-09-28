@@ -1,10 +1,10 @@
 package me.croabeast.neoprismatic.rgb;
 
-import lombok.var;
 import me.croabeast.neoprismatic.NeoPrismaticAPI;
 
-import java.awt.*;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class MultipleRGB extends RGBParser {
@@ -14,30 +14,30 @@ public final class MultipleRGB extends RGBParser {
     };
 
     static String gradientPattern(String prefix) {
-        var hex = prefix + "([\\da-f]{6})";
+        String hex = prefix + "([\\da-f]{6})";
         return "<" + hex + ">(.+?)</" + hex + ">";
     }
 
     static RGBAction gradientParser(String prefix) {
         return (pattern, string, isLegacy) -> {
-            var match = pattern.matcher(string);
+            Matcher match = pattern.matcher(string);
 
             while (match.find()) {
                 String x = match.group(1), text = match.group(2),
                         z = match.group(3),
                         r = "(?i)<" + prefix + "([\\da-f]{6})>";
 
-                var inside = Pattern.compile(r).matcher(text);
-                var array = text.split(r);
+                Matcher inside = Pattern.compile(r).matcher(text);
+                String[] array = text.split(r);
 
-                var ids = new ArrayList<String>();
+                List<String> ids = new ArrayList<>();
 
                 ids.add(x);
                 while (inside.find()) ids.add(inside.group(1));
 
                 ids.add(z);
 
-                var result = new StringBuilder();
+                StringBuilder result = new StringBuilder();
                 int i = 0;
 
                 while (i < ids.size() - 1) {
@@ -59,10 +59,10 @@ public final class MultipleRGB extends RGBParser {
 
     static RGBAction gradientStrip(String s) {
         return (pattern, string, b) -> {
-            var match = pattern.matcher(string);
+            Matcher match = pattern.matcher(string);
 
             while (match.find()) {
-                var array = match.group(2).split("(?i)<" + s + "([\\da-f]{6})>");
+                String[] array = match.group(2).split("(?i)<" + s + "([\\da-f]{6})>");
                 string = string.replace(match.group(), String.join("", array));
             }
 
@@ -75,7 +75,7 @@ public final class MultipleRGB extends RGBParser {
                 put(gradientPattern("g:"), gradientParser("g:")).
                 put(gradientPattern("#"), gradientParser("#")).
                 putAll((p, s, b) -> {
-                    var matcher = p.matcher(s);
+                    Matcher matcher = p.matcher(s);
 
                     while (matcher.find()) {
                         String g = matcher.group(), c = matcher.group(2);
@@ -91,7 +91,7 @@ public final class MultipleRGB extends RGBParser {
                 put(gradientPattern("g:"), gradientStrip("g:")).
                 put(gradientPattern("#"), gradientStrip("#")).
                 putAll((p, s, b) -> {
-                    var matcher = p.matcher(s);
+                    Matcher matcher = p.matcher(s);
 
                     while (matcher.find())
                         s = s.replace(matcher.group(), matcher.group(2));
